@@ -1,4 +1,4 @@
-import {listAllUsers, findUserById, addUser} from '../models/user-model.js';
+import {listAllUsers, findUserById, addUser, modifyUser, removeUser} from '../models/user-model.js';
 
 const getUser = (req, res) => {
   res.json(listAllUsers());

@@ -1,8 +1,17 @@
-import {addCat, findCatById, listAllCats} from "../models/cat-model.js";
+import {addCat, findCatById, listAllCats, modifyCat, removeCat, getCatsByUserId} from "../models/cat-model.js";
 
 const getCat = (req, res) => {
   res.json(listAllCats());
 };
+
+const getCatsByOwner = (req, res) => {
+  const cats = getCatsByUserId(req.params.id);
+  if (cats) {
+    res.json(cats)
+  } else {
+    res.sendStatus(404);
+  }
+}
 
 const getCatById = (req, res) => {
   const cat = findCatById(req.params.id);
@@ -46,4 +55,4 @@ const deleteCat = (req, res) => {
   res.sendStatus(200);
 };
 
-export {getCat, getCatById, postCat, putCat, deleteCat};
+export {getCat, getCatById, postCat, putCat, deleteCat, getCatsByOwner};
