@@ -1,11 +1,11 @@
 import {addCat, findCatById, listAllCats, modifyCat, removeCat, getCatsByUserId} from "../models/cat-model.js";
 
-const getCat = (req, res) => {
-  res.json(listAllCats());
+const getCat = async (req, res) => {
+  res.json(await listAllCats());
 };
 
-const getCatsByOwner = (req, res) => {
-  const cats = getCatsByUserId(req.params.id);
+const getCatsByOwner = async (req, res) => {
+  const cats = await getCatsByUserId(req.params.id);
   if (cats) {
     res.json(cats)
   } else {
@@ -13,8 +13,8 @@ const getCatsByOwner = (req, res) => {
   }
 }
 
-const getCatById = (req, res) => {
-  const cat = findCatById(req.params.id);
+const getCatById = async (req, res) => {
+  const cat = await findCatById(req.params.id);
   if (cat) {
     res.json(cat);
   } else {
@@ -22,32 +22,23 @@ const getCatById = (req, res) => {
   }
 };
 
-const postCat = (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
-
-  const fileData = req.file;
-  console.log('Uploaded file:', fileData);
-
-  const newCat = {
-    name: req.body.name,
-    age: req.body.age,
-    image: fileData.filename
-  };
-
-  const result = addCat(newCat);
-
+const postCat = async (req, res) => {
+  const result = await addCat(req.body, req.file);
   if (result.cat_id) {
-    return res.status(201).json({ message: 'New cat added.', result });
+    res.status(201);
+    res.json({message: 'New cat added.', result});
   } else {
-    return res.status(400).json({ error: 'Failed to add cat' });
+    res.sendStatus(400);
   }
 };
 
-const putCat = (req, res) => {
-  // not implemented in this example, this is future homework
-  res.sendStatus(200);
+const putCat = async (req, res) => {
+  const result = await modifyCat(req.body, req.params.id, res.locals.user);
+  if (!result) {
+    res.sendStatus(400);
+    return;
+  }
+  res.json(result);
 };
 
 const deleteCat = (req, res) => {
