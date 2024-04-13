@@ -7,7 +7,7 @@ import {
   updateUser,
 } from '../models/user-model.js';
 import bcrypt from 'bcrypt';
-import promisePool from '../../utils/database.js';
+import {validationErrors} from '../../middlewares.js';
 
 const getUser = async (req, res) => {
   const users = res.json(await listAllUsers());
@@ -27,15 +27,16 @@ const getUserById = async (req, res) => {
   }
 };
 
-const postUser = async (req, res) => {
+const postUser = async (req, res, next) => {
+  const errors = validationErrors(req);
+  if (!errors.isEmpty) {
+    const error = new Error('Invalid or missing fields');
+    error.status = 400;
+    return next(error);
+  }
   req.body.password = bcrypt.hashSync(req.body.password, 10);
   const result = await addUser(req.body);
-  if (result.user_id) {
-    res.status(201);
-    res.json({message: 'New user added.', result});
-  } else {
-    res.sendStatus(400);
-  }
+  res.json({message: 'New user added.', result});
 };
 
 const putUser = async (req, res) => {
